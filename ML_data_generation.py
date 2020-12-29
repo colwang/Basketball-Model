@@ -1,6 +1,7 @@
 import csv
 import pandas as pd
 import numpy as np
+import torch
 from calculate_teams import Team
 
 class data_gen:
@@ -11,6 +12,8 @@ class data_gen:
         self.start_year = first_playoff_year
         self.end_year = last_playoff_year
         self.LABELS = {"Away Win": 0, "Home Win": 1}
+        self.home_wins = 0
+        self.away_wins = 0
 
     def strip_asterisks(self, file_name): 
         
@@ -79,12 +82,39 @@ class data_gen:
 
                     if away_pts > home_points:
                         y = np.eye(2)[0].tolist()
+                        self.away_wins += 1
                     else:
                         y = np.eye(2)[1].tolist()
+                        self.home_wins += 1
 
                     self.data_points.append([X, y])
 
         return self.data_points
+
+    def shuffle_data(self):
+
+        np_data = np.array(self.data_points, dtype=object)
+        np.random.shuffle(np_data)
+        self.data_points = np_data.tolist()
+
+        return self.data_points
+
+    def create_tensors(self, data, VAL_PCT): 
+		# CREATING TENSORS
+        X = torch.Tensor([i[0] for i in data])
+        y = torch.Tensor([i[1] for i in data])
+
+        val_size = int(len(X) * VAL_PCT)
+        train_X = X[:-val_size]
+        train_y = y[:-val_size]
+
+        test_X = X[-val_size:]
+        test_y = y[-val_size:]
+
+        # print(len(train_X), len(test_X))
+
+        return train_X, train_y, test_X, test_y
+
 
 
 
