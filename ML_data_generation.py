@@ -35,7 +35,7 @@ class data_gen:
                     writer.writerow(row)
 
     
-    def generate_team_data(self):
+    def generate_raw_team_data(self):
         playoff_year = self.start_year
         for i in range(self.end_year - self.start_year + 1):
 
@@ -45,7 +45,7 @@ class data_gen:
             team_names = pd.read_csv(file_name)["Team"]
             team_names = team_names.sort_values()
             
-            teams_data_file = str(playoff_year) + "_team_ff_data.csv"
+            teams_data_file = str(playoff_year) + "_team_raw_ff_data.csv"
             with open(teams_data_file, "w") as out_file:
                 data_writer = csv.writer(out_file, delimiter=',')
                 data_writer.writerow(["Team", "Shooting Factor", "Turnover Factor", "Rebounding Factor", "Free Throw Factor"])
@@ -53,12 +53,57 @@ class data_gen:
                 for name in team_names:
                     team_ff = Team(name, playoff_year)
                     data_writer.writerow(team_ff.get_team_ff_data())
+
+    def generate_z_score_data(self):
+        playoff_year = self.start_year
+        for i in range(self.end_year - self.start_year + 1):
+
+            playoff_year += i
+
+            raw_file_name = str(playoff_year) + "_team_raw_ff_data.csv"
+            ff_df = pd.read_csv(raw_file_name)
+            team_names = ff_df["Team"]
+            team_names = team_names.sort_values()
+
+            averages = ff_df.mean()
+            shooting_avg = averages["Shooting Factor"]
+            turnover_avg = averages["Turnover Factor"]
+            rebound_avg = averages["Rebounding Factor"]
+            ft_avg = averages["Free Throw Factor"]
+
+            # print(averages)
+            # print(averages["Shooting Factor"])
+
+            deviations = ff_df.std()
+            shooting_std = deviations["Shooting Factor"]
+            turnover_std = deviations["Turnover Factor"]
+            rebound_std = deviations["Rebounding Factor"]
+            ft_std = deviations["Free Throw Factor"]
+
+            # print(deviations)
+            # print(deviations["Shooting Factor"])
+
+            z_data_file = str(playoff_year) + "_team_z_ff_data.csv"
+            ff_df = ff_df.set_index("Team")
+
+            with open(z_data_file, "w") as out_file:
+                data_writer = csv.writer(out_file, delimiter=',')
+                data_writer.writerow(["Team", "Shooting Factor", "Turnover Factor", "Rebounding Factor", "Free Throw Factor"])
+
+                for name in team_names:
+                    ff_z_scores = [name]
+                    ff_z_scores.append((ff_df.loc[name]["Shooting Factor"] - shooting_avg) / shooting_std)
+                    ff_z_scores.append((ff_df.loc[name]["Turnover Factor"] - turnover_avg) / turnover_std)
+                    ff_z_scores.append((ff_df.loc[name]["Rebounding Factor"] - rebound_avg) / rebound_std)
+                    ff_z_scores.append((ff_df.loc[name]["Free Throw Factor"] - ft_avg) / ft_std)
+
+                    data_writer.writerow(ff_z_scores)
     
     def generate_data_points(self):
         playoff_year = self.start_year
         for i in range(self.end_year - self.start_year + 1):
         
-            with open(str(playoff_year) + "_NBA_schedule.csv", "r") as schedule_file, open(str(playoff_year) + "_team_ff_data.csv", "r") as team_file:
+            with open(str(playoff_year) + "_NBA_schedule.csv", "r") as schedule_file, open(str(playoff_year) + "_team_z_ff_data.csv", "r") as team_file:
                 games = csv.reader(schedule_file)
                 teams_ff_df = pd.read_csv(team_file)
                 teams_ff_df = teams_ff_df.set_index("Team")

@@ -2,7 +2,10 @@ from ML_data_generation import *
 from calculate_teams import *
 
 data = data_gen(2020, 2020)
-# data.generate_team_data()
+# data.generate_raw_team_data()
+
+# data.generate_z_score_data()
+
 game_data_2020 = data.generate_data_points()
 print(game_data_2020[0])
 

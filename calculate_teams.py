@@ -60,9 +60,9 @@ class Team():
         self.shooting_factor = self.offensive_eFG - self.defensive_eFG
         self.turnover_factor = self.defensive_TOV_rate - self.offensive_TOV_rate
         self.rebounding_factor = self.o_rebound_rating - self.opp_o_rebound_rating
-        self.free_throw_factor = self.free_throw_rate
+        self.free_throw_factor = self.free_throws_made
 
     def get_team_ff_data(self):
-        ff_data = [self.name, self.shooting_factor * 10, self.turnover_factor * 10, self.rebounding_factor * 10, self.free_throw_factor]
+        ff_data = [self.name, self.shooting_factor * 10, self.turnover_factor * 10, self.rebounding_factor * 10, self.free_throw_factor / 10]
 
         return ff_data

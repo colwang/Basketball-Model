@@ -2,7 +2,7 @@ import torch
 import torch.optim as optim
 from tqdm import tqdm
 from ML_data_generation import *
-from ML_conv_net import *
+from ML_net import *
 
 data = data_gen(2020, 2020)
 data.generate_data_points()
@@ -67,7 +67,7 @@ for k in tqdm(range(len(learning_rates))):
 
         accuracies.append(accuracy)
 
-    learning_rate_accuracy[learning_rates[k]] = (sum(accuracies) / len(accuracies))
+    learning_rate_accuracy[learning_rates[k]] = round((sum(accuracies) / len(accuracies)), 3)
 
 learning_rate_rankings = dict(sorted(learning_rate_accuracy.items(), key=lambda item: item[1]))
 

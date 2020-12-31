@@ -2,7 +2,7 @@ import torch
 import torch.optim as optim
 from tqdm import tqdm
 from ML_data_generation import *
-from ML_conv_net import *
+from ML_net import *
 
 data = data_gen(2020, 2020)
 data.generate_data_points()
@@ -15,11 +15,11 @@ shuffled_game_data_2020 = data.shuffle_data()
 train_X, train_y, test_X, test_y = data.create_tensors(shuffled_game_data_2020, .2)
 
 BATCH_SIZE = 50                     # number of games we run each time
-EPOCHS = 5                          # how many times we run through the training data in general
+EPOCHS = 20                          # how many times we run through the training data in general
 
 
 # OPTIMIZATION STEP
-optimizer = optim.Adam(net.parameters(), lr=6e-4)
+optimizer = optim.Adam(net.parameters(), lr=8e-5)
 loss_function = nn.MSELoss()
 
 
