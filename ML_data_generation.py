@@ -12,8 +12,24 @@ class data_gen:
         self.start_year = first_playoff_year
         self.end_year = last_playoff_year
         self.LABELS = {"Away Win": 0, "Home Win": 1}
+        
+        # for h2h data balancing
         self.home_wins = 0
         self.away_wins = 0
+
+        # for spread data balancing
+        self.home_wins_5 = 0
+        self.home_wins_4 = 0
+        self.home_wins_3 = 0
+        self.home_wins_2 = 0
+        self.home_wins_1 = 0
+        self.buzzer_beater = 0
+        self.away_wins_1 = 0
+        self.away_wins_2 = 0
+        self.away_wins_3 = 0
+        self.away_wins_4 = 0
+        self.away_wins_5 = 0
+
 
     def strip_asterisks(self, file_name): 
         
@@ -99,7 +115,8 @@ class data_gen:
 
                     data_writer.writerow(ff_z_scores)
     
-    def generate_data_points(self):
+    def generate_h2h_data_points(self, spread_for_away):           
+        self.data_points = []              
         playoff_year = self.start_year
         for i in range(self.end_year - self.start_year + 1):
         
@@ -116,7 +133,7 @@ class data_gen:
                     away_team = game[2]
                     away_pts = int(game[3])
                     home_team = game[4]
-                    home_points = int(game[5])
+                    home_pts = int(game[5])
 
                     away_ff = teams_ff_df.loc[away_team]
                     home_ff = teams_ff_df.loc[home_team]
@@ -125,7 +142,7 @@ class data_gen:
                     X = [away_ff.iloc[0], away_ff.iloc[1], away_ff.iloc[2], away_ff.iloc[3],
                          home_ff.iloc[0], home_ff.iloc[1], home_ff.iloc[2], home_ff.iloc[3]]
 
-                    if away_pts > home_points:
+                    if away_pts + spread_for_away > home_pts:
                         y = np.eye(2)[0].tolist()
                         self.away_wins += 1
                     else:
@@ -135,6 +152,73 @@ class data_gen:
                     self.data_points.append([X, y])
 
         return self.data_points
+
+    def generate_spread_data_points(self):
+        self.data_points = []    
+        playoff_year = self.start_year
+        for i in range(self.end_year - self.start_year + 1):
+        
+            with open(str(playoff_year) + "_NBA_schedule.csv", "r") as schedule_file, open(str(playoff_year) + "_team_z_ff_data.csv", "r") as team_file:
+                games = csv.reader(schedule_file)
+                teams_ff_df = pd.read_csv(team_file)
+                teams_ff_df = teams_ff_df.set_index("Team")
+
+                # print(teams_ff_df.loc["Milwaukee Bucks"])
+                # print(teams_ff_df.loc["Milwaukee Bucks"].iloc[0])
+
+                header = next(games)
+                for game in games:
+                    away_team = game[2]
+                    away_pts = int(game[3])
+                    home_team = game[4]
+                    home_pts = int(game[5])
+
+                    away_ff = teams_ff_df.loc[away_team]
+                    home_ff = teams_ff_df.loc[home_team]
+
+                    # away ff data, home ff data
+                    X = [away_ff.iloc[0], away_ff.iloc[1], away_ff.iloc[2], away_ff.iloc[3],
+                         home_ff.iloc[0], home_ff.iloc[1], home_ff.iloc[2], home_ff.iloc[3]]
+
+                    if away_pts - 25 > home_pts:
+                        y = np.eye(11)[0].tolist()
+                        self.away_wins_5 += 1
+                    elif away_pts - 18 > home_pts:
+                        y = np.eye(11)[1].tolist()
+                        self.away_wins_4 += 1
+                    elif away_pts - 12 > home_pts:
+                        y = np.eye(11)[2].tolist()
+                        self.away_wins_3 += 1
+                    elif away_pts - 7 > home_pts:
+                        y = np.eye(11)[3].tolist()
+                        self.away_wins_2 += 1
+                    elif away_pts - 3 > home_pts:
+                        y = np.eye(11)[4].tolist()
+                        self.away_wins_1 += 1
+                    elif home_pts - 25 > away_pts:
+                        y = np.eye(11)[10].tolist()
+                        self.home_wins_5 += 1
+                    elif home_pts - 18 > away_pts:
+                        y = np.eye(11)[9].tolist()
+                        self.home_wins_4 += 1
+                    elif home_pts - 12 > away_pts:
+                        y = np.eye(11)[8].tolist()
+                        self.home_wins_3 += 1
+                    elif home_pts - 7 > away_pts:
+                        y = np.eye(11)[7].tolist()
+                        self.home_wins_2 += 1
+                    elif home_pts - 3 > away_pts:
+                        y = np.eye(11)[6].tolist()
+                        self.home_wins_1 += 1
+                    else:
+                        y = np.eye(11)[5].tolist()
+                        self.buzzer_beater += 1
+                    
+
+                    self.data_points.append([X, y])
+
+        return self.data_points
+
 
     def shuffle_data(self):
 
@@ -159,6 +243,26 @@ class data_gen:
         # print(len(train_X), len(test_X))
 
         return train_X, train_y, test_X, test_y
+
+    def balance_data(self, is_h2h):
+        games_removed = 0
+
+        if is_h2h:
+            while self.home_wins * .95 > self.away_wins:
+                i = 0
+                print(self.data_points[i][1])           # BUGGY - wack
+
+                if int(self.data_points[i][1][1]) == 1:
+                    del self.data_points[i]
+                    games_removed += 1
+                    self.home_wins -= 1
+
+                    print("Removed Game")
+                i += 1
+        
+        print("Removed", games_removed, "to balance data")
+
+
 
 
 

@@ -5,7 +5,8 @@ from ML_data_generation import *
 from ML_net import *
 
 data = data_gen(2020, 2020)
-data.generate_data_points()
+# data.generate_h2h_data_points(-10)
+data.generate_spread_data_points()
 shuffled_game_data_2020 = data.shuffle_data()
 
 # np.save("data_points.npy", shuffled_game_data_2020)
