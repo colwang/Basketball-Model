@@ -4,18 +4,21 @@ from tqdm import tqdm
 from ML_data_generation import *
 from ML_net import *
 
-data = data_gen(2020, 2020)
-data.generate_data_points()
+data = data_gen(2017, 2020)
+# data.generate_h2h_data_points(5)
+data.generate_spread_data_points()
 shuffled_game_data_2020 = data.shuffle_data()
 
-# np.save("data_points.npy", shuffled_game_data_2020)
-# training_data = np.load("data_points.npy", allow_pickle=True)
-# print(len(training_data))
+# print("Home Wins:", data.home_wins)
+# print("Away Wins:", data.away_wins)
+
+# data.balance_data(True)
+data.balance_data(False)
 
 train_X, train_y, test_X, test_y = data.create_tensors(shuffled_game_data_2020, .2)
 
 BATCH_SIZE = 50                     # number of games we run each time
-EPOCHS = 5                          # how many times we run through the training data in general
+EPOCHS = 50                          # how many times we run through the training data in general
 
 learning_rate_accuracy = dict()
 learning_rates = [8e-6, 9e-6, 1e-5, 2e-5, 3e-5,
@@ -32,7 +35,7 @@ for k in tqdm(range(len(learning_rates))):
 
     accuracies = []
 
-    for i in range(10):
+    for i in range(5):
 
         for epoch in range(EPOCHS):
             for i in range(0, len(train_X), BATCH_SIZE):

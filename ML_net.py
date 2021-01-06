@@ -15,8 +15,8 @@ class Net(nn.Module):
 		self.fc6 = nn.Linear(64, 64)
 		self.fc7 = nn.Linear(64, 64)
 
-		# self.fc8 = nn.Linear(64, 2)			# for h2h predictions
-		self.fc8 = nn.Linear(64, 11)		# for spread predictions
+		self.fc8 = nn.Linear(64, 2)			# for h2h predictions
+		# self.fc8 = nn.Linear(64, 12)		# for spread predictions
 
 	def forward(self, x):
 		x = F.relu(self.fc1(x))
