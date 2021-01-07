@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 import math
+import random
 from calculate_teams import Team
 
 class data_gen:
@@ -141,10 +142,15 @@ class data_gen:
                     away_ff = teams_ff_df.loc[away_team]
                     home_ff = teams_ff_df.loc[home_team]
 
+                    spread_changer = random.randint(-25, 25)
+                    spread = spread_for_away + spread_changer
+
                     # away ff data, home ff data
                     X = [away_ff.iloc[0], away_ff.iloc[1], away_ff.iloc[2], away_ff.iloc[3],
-                         home_ff.iloc[0], home_ff.iloc[1], home_ff.iloc[2], home_ff.iloc[3]]
+                         home_ff.iloc[0], home_ff.iloc[1], home_ff.iloc[2], home_ff.iloc[3],
+                         spread_for_away]
 
+                    # if away_pts + spread > home_pts:
                     if away_pts + spread_for_away > home_pts:
                         y = np.eye(2)[0].tolist()
                         self.away_wins += 1
@@ -266,7 +272,8 @@ class data_gen:
 
             # away ff data, home ff data
             X = [away_ff.iloc[0], away_ff.iloc[1], away_ff.iloc[2], away_ff.iloc[3],
-                    home_ff.iloc[0], home_ff.iloc[1], home_ff.iloc[2], home_ff.iloc[3]]
+                 home_ff.iloc[0], home_ff.iloc[1], home_ff.iloc[2], home_ff.iloc[3],
+                 spread_for_away]
 
             tensor_X = torch.Tensor(X)
 

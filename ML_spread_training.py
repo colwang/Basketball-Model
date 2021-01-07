@@ -6,14 +6,9 @@ from ML_data_generation import *
 from ML_net import *
 
 data = data_gen(2017, 2020)
-data.generate_h2h_data_points(5)
-# data.generate_spread_data_points()
+data.generate_spread_data_points()
 shuffled_game_data = data.shuffle_data()
 
-# print("Home Wins:", data.home_wins)
-# print("Away Wins:", data.away_wins)
-
-data.balance_data(True)
 # data.balance_data(False)
 
 train_X, train_y, test_X, test_y = data.create_tensors(shuffled_game_data, .2)
@@ -23,7 +18,7 @@ EPOCHS = 20                          # how many times we run through the trainin
 
 
 # OPTIMIZATION STEP
-optimizer = optim.Adam(net.parameters(), lr=1e-5)
+optimizer = optim.Adam(spread_net.parameters(), lr=1e-5)
 loss_function = nn.MSELoss()
 
 
@@ -33,9 +28,9 @@ for epoch in tqdm(range(EPOCHS)):
         batch_X = train_X[i:i+BATCH_SIZE].view(-1, 8)
         batch_y = train_y[i:i+BATCH_SIZE]
 
-        net.zero_grad()
+        spread_net.zero_grad()
         
-        outputs = net(batch_X)
+        outputs = spread_net(batch_X)
         loss = loss_function(outputs, batch_y)
         loss.backward()
         optimizer.step()
@@ -49,7 +44,7 @@ total = 0
 with torch.no_grad():
     for i in range(len(test_X)):
         real_class = torch.argmax(test_y[i])
-        net_out = net(test_X[i].view(-1, 8))
+        net_out = spread_net(test_X[i].view(-1, 8))
         predicted_class = torch.argmax(net_out)
 
         # print("Predicted:", predicted_class)
@@ -72,35 +67,6 @@ print("Underestimated home team", underestimated_home_team, "times")
 
 
 
-# SPECIFIC CASE TESTING
-
-tensor_X, home_team, away_team = data.generate_matchup("Milwaukee Bucks", "Atlanta Hawks", 0, 2020)
-
-with torch.no_grad():
-    net_out = net(tensor_X.view(-1, 8))
-    predicted_class = torch.argmax(net_out)
-
-    print(predicted_class)
-    print(type(predicted_class))
-    print(tf.get_static_value(predicted_class))
-    print(type(tf.get_static_value(predicted_class)))
-
-    torch_home_win = torch.Tensor([1])
-    torch_away_win = torch.Tensor([1, 0])
-
-    print(tf.get_static_value(torch_home_win))
-    print(type(tf.get_static_value(torch_home_win)))
-
-    if torch.all(torch.eq(predicted_class, torch_home_win)):
-        predicted_winner = home_team
-    else:
-        predicted_winner = away_team
-        print("lol")
-    print("Predicted winner:", predicted_winner)
-
-
-
-
 # # BACKTESTING
 
 # playoff_year = data.start_year
@@ -109,7 +75,6 @@ with torch.no_grad():
 
 #     backtesting_data = data_gen(playoff_year, playoff_year)
 
-#     # backtesting_data.generate_h2h_data_points(5)
 #     backtesting_data.generate_spread_data_points()
 #     shuffled_backtesting_data = backtesting_data.shuffle_data()
 
@@ -122,7 +87,7 @@ with torch.no_grad():
 #     with torch.no_grad():
 #         for i in range(len(backtesting_X)):
 #             real_class = torch.argmax(backtesting_y[i])
-#             net_out = net(backtesting_X[i].view(-1, 8))
+#             net_out = spread_net(backtesting_X[i].view(-1, 8))
 #             predicted_class = torch.argmax(net_out)
 
 #             # print("Predicted:", predicted_class)
