@@ -277,7 +277,7 @@ class data_gen:
 
             tensor_X = torch.Tensor(X)
 
-            return tensor_X, home_team, away_team
+            return tensor_X, home_team, away_team, spread_for_away
 
 
     def balance_data(self, is_h2h):

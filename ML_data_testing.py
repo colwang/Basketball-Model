@@ -1,21 +1,21 @@
 from ML_data_generation import *
 from calculate_teams import *
 
-data = data_gen(2020, 2020)
+data = data_gen(2021, 2021)
 
 # data.strip_asterisks("2017_team_per_game_stats.csv")
 
-# data.generate_raw_team_data()
-# data.generate_z_score_data()
+data.generate_raw_team_data()
+data.generate_z_score_data()
 
-game_data_2020 = data.generate_h2h_data_points(0)
+# game_data_2020 = data.generate_h2h_data_points(0)
 # game_data_2020 = data.generate_spread_data_points()
 # print(game_data_2020[0])
 
-shuffled_game_data_2020 = data.shuffle_data()
+# shuffled_game_data_2020 = data.shuffle_data()
 # print(shuffled_game_data_2020[0])
 
-data.create_tensors(shuffled_game_data_2020, .01)
+# data.create_tensors(shuffled_game_data_2020, .01)
 
 # print("Home Wins:", data.home_wins)
 # print("Away Wins:", data.away_wins)

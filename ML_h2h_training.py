@@ -55,7 +55,7 @@ with torch.no_grad():
 
         if predicted_class > real_class:
             overestimated_home_team += 1
-        elif predicted_class < real_class:
+        elif predicted_class < real_class: 
             underestimated_home_team += 1
         elif predicted_class == real_class:
             correct += 1
@@ -73,7 +73,7 @@ print("Underestimated home team", underestimated_home_team, "times")
 # SPECIFIC CASE TESTING
 
 for spread in range(-10, 20):
-    tensor_X, home_team, away_team = data.generate_matchup("Houston Rockets", "Sacramento Kings", spread, 2019)
+    tensor_X, home_team, away_team, spread = data.generate_matchup("Washington Wizards", "Miami Heat", spread, 2021)
 
     with torch.no_grad():
         net_out = h2h_net(tensor_X.view(-1, 9))
@@ -85,6 +85,19 @@ for spread in range(-10, 20):
             predicted_winner = away_team
 
         print("Predicted winner for away spread", spread, ":", predicted_winner)
+
+# tensor_X, home_team, away_team, spread = data.generate_matchup("Detroit Pistons", "Phoenix Suns", 0, 2021)
+
+# with torch.no_grad():
+#     net_out = h2h_net(tensor_X.view(-1, 9))
+#     predicted_class = torch.argmax(net_out)
+
+#     if predicted_class.tolist() == 1:
+#         predicted_winner = home_team
+#     else:
+#         predicted_winner = away_team
+
+#     print("Predicted winner for away spread", spread, ":", predicted_winner)
 
 
 
